@@ -23,11 +23,23 @@ export default function RSVPForm({ event }: RSVPFormProps) {
   const [invitationCode, setInvitationCode] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
 
+  // Add safety check for event
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h1>
+          <p className="text-gray-600">Event data is missing.</p>
+        </div>
+      </div>
+    );
+  }
+
   const schema: FormSchema = event.form_schema || { sections: [] };
   const fields = flattenFields(schema).filter(f => f && f.type);
 
   // Safe theme config with fallbacks
-  const safeTheme = event.theme_config || {
+  const themeConfig = event.theme_config || {
     colors: {
       primary: "#3b82f6",
       secondary: "#64748b",
@@ -43,6 +55,24 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       headingFont: "system-ui",
       bodyFont: "system-ui",
     },
+  };
+
+  // Safe colors access
+  const safeColors = (themeConfig as any).colors || {
+    primary: "#3b82f6",
+    secondary: "#64748b",
+    accent: "#f59e0b",
+    background: "#ffffff",
+    text: "#1e293b",
+    button: "#3b82f6",
+    buttonText: "#ffffff",
+    card: "#ffffff",
+    muted: "#64748b",
+  };
+
+  const safeTypography = (themeConfig as any).typography || {
+    headingFont: "system-ui",
+    bodyFont: "system-ui",
   };
 
   const handleFieldChange = (fieldId: string, value: any) => {
@@ -106,7 +136,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "phone":
         return (
           <div key={field.id} className={`mb-4 ${field.width === "half" ? "w-1/2 pr-2" : field.width === "third" ? "w-1/3 pr-2" : "w-full"}`}>
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -117,9 +147,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               placeholder={field.placeholder}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
-                backgroundColor: safeTheme.colors.card,
-                color: safeTheme.colors.text,
+                borderColor: error ? safeColors.button : "#e5e7eb",
+                backgroundColor: safeColors.card,
+                color: safeColors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -129,7 +159,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "long_text":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -140,9 +170,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               rows={4}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
-                backgroundColor: safeTheme.colors.card,
-                color: safeTheme.colors.text,
+                borderColor: error ? safeColors.button : "#e5e7eb",
+                backgroundColor: safeColors.card,
+                color: safeColors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -153,7 +183,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "guest_count":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -165,9 +195,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               max={field.max}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
-                backgroundColor: safeTheme.colors.card,
-                color: safeTheme.colors.text,
+                borderColor: error ? safeColors.button : "#e5e7eb",
+                backgroundColor: safeColors.card,
+                color: safeColors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -177,7 +207,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "radio":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -192,7 +222,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
                     onChange={(e) => handleFieldChange(field.id, e.target.value)}
                     className="w-4 h-4 text-blue-600"
                   />
-                  <span style={{ color: safeTheme.colors.text }}>{option.label}</span>
+                  <span style={{ color: safeColors.text }}>{option.label}</span>
                 </label>
               ))}
             </div>
@@ -203,7 +233,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "dropdown":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -212,9 +242,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
-                backgroundColor: safeTheme.colors.card,
-                color: safeTheme.colors.text,
+                borderColor: error ? safeColors.button : "#e5e7eb",
+                backgroundColor: safeColors.card,
+                color: safeColors.text,
               }}
             >
               <option value="">Select an option</option>
@@ -231,7 +261,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "checkbox":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -252,7 +282,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
                     }}
                     className="w-4 h-4 text-blue-600 rounded"
                   />
-                  <span style={{ color: safeTheme.colors.text }}>{option.label}</span>
+                  <span style={{ color: safeColors.text }}>{option.label}</span>
                 </label>
               ))}
             </div>
@@ -265,7 +295,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "attendance":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -281,8 +311,8 @@ export default function RSVPForm({ event }: RSVPFormProps) {
                       : "border-gray-300 hover:border-gray-400"
                   }`}
                   style={{
-                    backgroundColor: answers[field.id] === option.value ? safeTheme.colors.primary : safeTheme.colors.card,
-                    color: answers[field.id] === option.value ? safeTheme.colors.buttonText : safeTheme.colors.text,
+                    backgroundColor: answers[field.id] === option.value ? safeColors.primary : safeColors.card,
+                    color: answers[field.id] === option.value ? safeColors.buttonText : safeColors.text,
                   }}
                 >
                   {option.label}
@@ -296,7 +326,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "date":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -306,9 +336,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
-                backgroundColor: safeTheme.colors.card,
-                color: safeTheme.colors.text,
+                borderColor: error ? safeColors.button : "#e5e7eb",
+                backgroundColor: safeColors.card,
+                color: safeColors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -318,7 +348,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "time":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeColors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -328,9 +358,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
-                backgroundColor: safeTheme.colors.card,
-                color: safeTheme.colors.text,
+                borderColor: error ? safeColors.button : "#e5e7eb",
+                backgroundColor: safeColors.card,
+                color: safeColors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -343,8 +373,8 @@ export default function RSVPForm({ event }: RSVPFormProps) {
             <h3
               className="text-2xl font-bold"
               style={{
-                color: safeTheme.colors.primary,
-                fontFamily: safeTheme.typography.headingFont,
+                color: safeColors.primary,
+                fontFamily: safeTypography.headingFont,
               }}
             >
               {field.label}
@@ -358,8 +388,8 @@ export default function RSVPForm({ event }: RSVPFormProps) {
             <p
               className="text-gray-600"
               style={{
-                color: safeTheme.colors.muted,
-                fontFamily: safeTheme.typography.bodyFont,
+                color: safeColors.muted,
+                fontFamily: safeTypography.bodyFont,
               }}
             >
               {field.content}
@@ -430,9 +460,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: safeTheme.colors.background }}>
+    <div className="min-h-screen" style={{ backgroundColor: safeColors.background }}>
       <div className="max-w-2xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-lg shadow-lg p-8" style={{ backgroundColor: safeTheme.colors.card }}>
+        <div className="bg-white rounded-lg shadow-lg p-8" style={{ backgroundColor: safeColors.card }}>
           {event.cover_image_url && (
             <img
               src={event.cover_image_url}
@@ -441,17 +471,17 @@ export default function RSVPForm({ event }: RSVPFormProps) {
             />
           )}
 
-          <h1 className="text-3xl font-bold mb-2" style={{ color: safeTheme.colors.primary, fontFamily: safeTheme.typography.headingFont }}>
+          <h1 className="text-3xl font-bold mb-2" style={{ color: safeColors.primary, fontFamily: safeTypography.headingFont }}>
             {event.name}
           </h1>
 
           {event.description && (
-            <p className="text-gray-600 mb-6" style={{ color: safeTheme.colors.muted, fontFamily: safeTheme.typography.bodyFont }}>
+            <p className="text-gray-600 mb-6" style={{ color: safeColors.muted, fontFamily: safeTypography.bodyFont }}>
               {event.description}
             </p>
           )}
 
-          <div className="space-y-3 mb-8 text-sm" style={{ color: safeTheme.colors.text }}>
+          <div className="space-y-3 mb-8 text-sm" style={{ color: safeColors.text }}>
             {event.event_date && (
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
@@ -492,12 +522,12 @@ export default function RSVPForm({ event }: RSVPFormProps) {
             {schema.sections.map((section) => (
               <div key={section.id} className="mb-8">
                 {section.title && (
-                  <h2 className="text-xl font-semibold mb-4" style={{ color: safeTheme.colors.primary }}>
+                  <h2 className="text-xl font-semibold mb-4" style={{ color: safeColors.primary }}>
                     {section.title}
                   </h2>
                 )}
                 {section.description && (
-                  <p className="text-gray-600 mb-4" style={{ color: safeTheme.colors.muted }}>
+                  <p className="text-gray-600 mb-4" style={{ color: safeColors.muted }}>
                     {section.description}
                   </p>
                 )}
@@ -512,8 +542,8 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               disabled={loading}
               className="w-full px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
               style={{
-                backgroundColor: safeTheme.colors.button,
-                color: safeTheme.colors.buttonText,
+                backgroundColor: safeColors.button,
+                color: safeColors.buttonText,
               }}
             >
               {loading ? "Submitting..." : "Submit RSVP"}
