@@ -8,6 +8,9 @@ export default async function DebugEventsPage() {
 
   const { data: events, error } = await supabase.from("events").select("*").order("created_at", { ascending: false }).limit(10);
 
+  // Also try to find the specific "testing" event
+  const { data: testingEvent } = await supabase.from("events").select("*").eq("slug", "testing").single();
+
   if (error) {
     return (
       <div className="p-8">
@@ -20,6 +23,21 @@ export default async function DebugEventsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Debug: Recent Events</h1>
+      
+      <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <h2 className="font-bold mb-2">Looking for slug: "testing"</h2>
+        {testingEvent ? (
+          <div>
+            <p><strong>✓ Found event:</strong> {testingEvent.name}</p>
+            <p><strong>Status:</strong> {testingEvent.status}</p>
+            <p><strong>Public URL:</strong> <a href={`/r/${testingEvent.slug}`} className="text-blue-600 hover:underline">/r/{testingEvent.slug}</a></p>
+          </div>
+        ) : (
+          <p><strong>✗ Event not found with slug "testing"</strong></p>
+        )}
+      </div>
+
+      <h2 className="text-xl font-bold mb-4">All Recent Events</h2>
       <div className="space-y-4">
         {events?.map((event: any) => (
           <div key={event.id} className="bg-white rounded-lg shadow p-4 border">

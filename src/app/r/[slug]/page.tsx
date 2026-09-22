@@ -4,23 +4,62 @@ import RSVPForm from "./rsvp-form";
 import type { EventRecord } from "@/types/events";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export const dynamic = "force-dynamic";
 
 export default async function PublicRSVPPage({ params }: PageProps) {
+  const { slug } = await params;
   const supabase = await createClient();
 
-  console.log("Fetching event for slug:", params.slug);
+  console.log("Fetching event for slug:", slug);
 
+  if (!slug) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid URL</h1>
+          <p className="text-gray-600">No event slug provided in the URL.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // First, try to find the event regardless of status to see if it exists
+  const { data: anyEvent, error: anyError } = await supabase
+    .from("events")
+    .select("*")
+    .eq("slug", slug)
+    .limit(1);
+
+  console.log("Any event with this slug:", anyEvent);
+  console.log("Any error:", anyError);
+
+  if (anyEvent && anyEvent.length > 0) {
+    const event = anyEvent[0];
+    if (event.status !== "published") {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+          <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Published</h1>
+            <p className="text-gray-600 mb-4">This event exists but has not been published yet.</p>
+            <p className="text-sm text-gray-500">Current status: <strong>{event.status}</strong></p>
+            <p className="text-sm text-gray-500">Event: {event.name}</p>
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // Now try to find published event
   const { data: events, error } = await supabase
     .from("events")
     .select("*")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .eq("status", "published");
 
-  console.log("Events data:", events);
+  console.log("Published events data:", events);
   console.log("Error:", error);
 
   if (error) {
@@ -37,13 +76,14 @@ export default async function PublicRSVPPage({ params }: PageProps) {
   }
 
   if (!events || events.length === 0) {
-    console.log("No events found for slug:", params.slug);
+    console.log("No published events found for slug:", slug);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h1>
           <p className="text-gray-600 mb-4">We couldn't find the event you're looking for. It may have been moved or deleted.</p>
-          <p className="text-sm text-gray-500">Slug: {params.slug}</p>
+          <p className="text-sm text-gray-500">Slug: {slug}</p>
+          <p className="text-xs text-gray-400 mt-2">Note: Make sure the event is published and the slug matches the URL</p>
         </div>
       </div>
     );
