@@ -14,14 +14,13 @@ export default async function PublicRSVPPage({ params }: PageProps) {
 
   console.log("Fetching event for slug:", params.slug);
 
-  const { data: event, error } = await supabase
+  const { data: events, error } = await supabase
     .from("events")
     .select("*")
     .eq("slug", params.slug)
-    .eq("status", "published")
-    .single();
+    .eq("status", "published");
 
-  console.log("Event data:", event);
+  console.log("Events data:", events);
   console.log("Error:", error);
 
   if (error) {
@@ -37,8 +36,8 @@ export default async function PublicRSVPPage({ params }: PageProps) {
     );
   }
 
-  if (!event) {
-    console.log("Event not found for slug:", params.slug);
+  if (!events || events.length === 0) {
+    console.log("No events found for slug:", params.slug);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
@@ -49,6 +48,9 @@ export default async function PublicRSVPPage({ params }: PageProps) {
       </div>
     );
   }
+
+  const event = events[0];
+  console.log("Found event:", event);
 
   return <RSVPForm event={event as EventRecord} />;
 }
