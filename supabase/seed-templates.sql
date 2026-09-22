@@ -1,9 +1,28 @@
--- Seed system templates
--- Run this after creating the Supabase project to populate initial templates
--- This uses simplified JSON for the form schemas
+-- ============================================================
+-- SEED SYSTEM RSVP TEMPLATES
+-- ============================================================
+-- Run this after creating the Supabase project and the
+-- public.form_templates table.
+--
+-- This inserts the initial system templates.
+-- ============================================================
 
--- Wedding RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 1. WEDDING RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -14,10 +33,25 @@ VALUES (
   'wedding',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Birthday RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 2. BIRTHDAY RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -28,10 +62,25 @@ VALUES (
   'birthday',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Christmas Party RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 3. CHRISTMAS PARTY RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -42,10 +91,25 @@ VALUES (
   'christmas',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Halloween Party RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 4. HALLOWEEN PARTY RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -56,10 +120,25 @@ VALUES (
   'halloween',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Corporate Event RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 5. CORPORATE EVENT RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -70,10 +149,25 @@ VALUES (
   'corporate',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Graduation RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 6. GRADUATION RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -84,24 +178,54 @@ VALUES (
   'graduation',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Baby Shower RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 7. BABY SHOWER RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
   'Baby Shower RSVP',
   'Registry notes, attendance, and gift coordination.',
   'Baby Shower',
-  '{"sections":[{"id":"sec1","title":"Guest Info","fields":[{"id":"f1","type":"short_text","label":"Full Name","required":true},{"id":"f2","type":"email","label":"Email","required":true}]},{"id":"sec2","title":"Celebration","fields":[{"id":"f3","type":"attendance","label":"Will you attend?","required":true},{"id":"f4":"type":"yes_no","label":"Need address sent privately?"},{"id":"f5","type":"short_text","label":"Gift you plan to bring"},{"id":"f6","type":"long_text","label":"Note for the parents"}]}]}',
+  '{"sections":[{"id":"sec1","title":"Guest Info","fields":[{"id":"f1","type":"short_text","label":"Full Name","required":true},{"id":"f2","type":"email","label":"Email","required":true}]},{"id":"sec2","title":"Celebration","fields":[{"id":"f3","type":"attendance","label":"Will you attend?","required":true},{"id":"f4","type":"yes_no","label":"Need address sent privately?"},{"id":"f5","type":"short_text","label":"Gift you plan to bring"},{"id":"f6","type":"long_text","label":"Note for the parents"}]}]}',
   'baby_shower',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- Anniversary RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 8. ANNIVERSARY RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -112,10 +236,25 @@ VALUES (
   'anniversary',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
 
--- General Party RSVP Template
-INSERT INTO public.form_templates (id, user_id, name, description, category, form_schema, theme_preset, is_system, created_at)
+
+-- ============================================================
+-- 9. GENERAL PARTY RSVP TEMPLATE
+-- ============================================================
+
+INSERT INTO public.form_templates (
+  id,
+  user_id,
+  name,
+  description,
+  category,
+  form_schema,
+  theme_preset,
+  is_system,
+  created_at
+)
 VALUES (
   gen_random_uuid(),
   NULL,
@@ -126,4 +265,10 @@ VALUES (
   'party',
   true,
   NOW()
-) ON CONFLICT DO NOTHING;
+)
+ON CONFLICT DO NOTHING;
+
+
+-- ============================================================
+-- DONE
+-- ============================================================

@@ -26,7 +26,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isAuthPage = path.startsWith("/login") || path.startsWith("/forgot-password") || path.startsWith("/reset-password");
+  const isAuthPage = path.startsWith("/auth/login") || path.startsWith("/auth/signup") || path.startsWith("/auth/reset-password");
+  const isPublicRSVP = path.startsWith("/r/");
   const isAdmin =
     path.startsWith("/dashboard") ||
     path.startsWith("/events") ||
@@ -37,9 +38,14 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/profile") ||
     path.startsWith("/admin");
 
+  // Allow public RSVP pages without authentication
+  if (isPublicRSVP) {
+    return response;
+  }
+
   if (isAdmin && !user) {
     const redirect = request.nextUrl.clone();
-    redirect.pathname = "/login";
+    redirect.pathname = "/auth/login";
     redirect.searchParams.set("next", path);
     return NextResponse.redirect(redirect);
   }
