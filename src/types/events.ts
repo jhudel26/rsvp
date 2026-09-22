@@ -72,18 +72,6 @@ export interface ActivityLog {
   created_at: string;
 }
 
-export interface FormTemplate {
-  id: string;
-  user_id: string | null;
-  name: string;
-  description: string | null;
-  category: string;
-  form_schema: FormSchema;
-  theme_preset: ThemePresetId;
-  is_system: boolean;
-  created_at: string;
-}
-
 export interface Profile {
   id: string;
   email: string | null;

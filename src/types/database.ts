@@ -1,4 +1,4 @@
-import type { ActivityLog, EventRecord, FormResponse, FormTemplate, Profile } from "./events";
+import type { ActivityLog, EventRecord, FormResponse, Profile } from "./events";
 
 export interface Database {
   public: {
@@ -22,11 +22,6 @@ export interface Database {
         Row: ActivityLog;
         Insert: Partial<ActivityLog> & { action: string };
         Update: Partial<ActivityLog>;
-      };
-      form_templates: {
-        Row: FormTemplate;
-        Insert: Partial<FormTemplate> & { name: string; form_schema: FormTemplate["form_schema"] };
-        Update: Partial<FormTemplate>;
       };
     };
   };
