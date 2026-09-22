@@ -84,6 +84,7 @@ export default async function PublicRSVPPage({ params }: PageProps) {
           <p className="text-gray-600 mb-4">We couldn't find the event you're looking for. It may have been moved or deleted.</p>
           <p className="text-sm text-gray-500">Slug: {slug}</p>
           <p className="text-xs text-gray-400 mt-2">Note: Make sure the event is published and the slug matches the URL</p>
+          <p className="text-xs text-gray-400 mt-2">Check available events at <a href="/debug-events" className="text-blue-600 hover:underline">/debug-events</a></p>
         </div>
       </div>
     );
@@ -91,6 +92,18 @@ export default async function PublicRSVPPage({ params }: PageProps) {
 
   const event = events[0];
   console.log("Found event:", event);
+
+  // Only render RSVPForm if event exists
+  if (!event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Event Not Found</h1>
+          <p className="text-gray-600">Event data is invalid.</p>
+        </div>
+      </div>
+    );
+  }
 
   return <RSVPForm event={event as EventRecord} />;
 }
