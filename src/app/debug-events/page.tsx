@@ -28,9 +28,9 @@ export default async function DebugEventsPage() {
         <h2 className="font-bold mb-2">Looking for slug: "testing"</h2>
         {testingEvent ? (
           <div>
-            <p><strong>✓ Found event:</strong> {testingEvent.name}</p>
-            <p><strong>Status:</strong> {testingEvent.status}</p>
-            <p><strong>Public URL:</strong> <a href={`/r/${testingEvent.slug}`} className="text-blue-600 hover:underline">/r/{testingEvent.slug}</a></p>
+            <p><strong>✓ Found event:</strong> {(testingEvent as any).name}</p>
+            <p><strong>Status:</strong> {(testingEvent as any).status}</p>
+            <p><strong>Public URL:</strong> <a href={`/r/${(testingEvent as any).slug}`} className="text-blue-600 hover:underline">/r/{(testingEvent as any).slug}</a></p>
           </div>
         ) : (
           <p><strong>✗ Event not found with slug "testing"</strong></p>
