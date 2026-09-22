@@ -23,8 +23,27 @@ export default function RSVPForm({ event }: RSVPFormProps) {
   const [invitationCode, setInvitationCode] = useState("");
   const [codeVerified, setCodeVerified] = useState(false);
 
-  const schema: FormSchema = event.form_schema;
-  const fields = flattenFields(schema);
+  const schema: FormSchema = event.form_schema || { sections: [] };
+  const fields = flattenFields(schema).filter(f => f && f.type);
+
+  // Safe theme config with fallbacks
+  const safeTheme = event.theme_config || {
+    colors: {
+      primary: "#3b82f6",
+      secondary: "#64748b",
+      accent: "#f59e0b",
+      background: "#ffffff",
+      text: "#1e293b",
+      button: "#3b82f6",
+      buttonText: "#ffffff",
+      card: "#ffffff",
+      muted: "#64748b",
+    },
+    typography: {
+      headingFont: "system-ui",
+      bodyFont: "system-ui",
+    },
+  };
 
   const handleFieldChange = (fieldId: string, value: any) => {
     setAnswers({ ...answers, [fieldId]: value });
@@ -76,6 +95,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
   };
 
   const renderField = (field: FormField) => {
+    if (!field || !field.type) return null;
     if (!isFieldVisible(field, schema, answers)) return null;
 
     const error = errors[field.id];
@@ -86,7 +106,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "phone":
         return (
           <div key={field.id} className={`mb-4 ${field.width === "half" ? "w-1/2 pr-2" : field.width === "third" ? "w-1/3 pr-2" : "w-full"}`}>
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -97,9 +117,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               placeholder={field.placeholder}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? event.theme_config.colors.button : "#e5e7eb",
-                backgroundColor: event.theme_config.colors.card,
-                color: event.theme_config.colors.text,
+                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
+                backgroundColor: safeTheme.colors.card,
+                color: safeTheme.colors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -109,7 +129,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "long_text":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -120,9 +140,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               rows={4}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? event.theme_config.colors.button : "#e5e7eb",
-                backgroundColor: event.theme_config.colors.card,
-                color: event.theme_config.colors.text,
+                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
+                backgroundColor: safeTheme.colors.card,
+                color: safeTheme.colors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -133,7 +153,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "guest_count":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -145,9 +165,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               max={field.max}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? event.theme_config.colors.button : "#e5e7eb",
-                backgroundColor: event.theme_config.colors.card,
-                color: event.theme_config.colors.text,
+                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
+                backgroundColor: safeTheme.colors.card,
+                color: safeTheme.colors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -155,48 +175,55 @@ export default function RSVPForm({ event }: RSVPFormProps) {
         );
 
       case "radio":
-      case "dropdown":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
-            {field.type === "dropdown" ? (
-              <select
-                value={answers[field.id] || ""}
-                onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                style={{
-                  borderColor: error ? event.theme_config.colors.button : "#e5e7eb",
-                  backgroundColor: event.theme_config.colors.card,
-                  color: event.theme_config.colors.text,
-                }}
-              >
-                <option value="">Select an option</option>
-                {field.options?.map((option) => (
-                  <option key={option.id} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="space-y-2">
-                {field.options?.map((option) => (
-                  <label key={option.id} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={field.id}
-                      value={option.value}
-                      checked={answers[field.id] === option.value}
-                      onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                      className="w-4 h-4 text-blue-600"
-                    />
-                    <span style={{ color: event.theme_config.colors.text }}>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            )}
+            <div className="space-y-2">
+              {field.options?.map((option) => (
+                <label key={option.id} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name={field.id}
+                    value={option.value}
+                    checked={answers[field.id] === option.value}
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span style={{ color: safeTheme.colors.text }}>{option.label}</span>
+                </label>
+              ))}
+            </div>
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          </div>
+        );
+
+      case "dropdown":
+        return (
+          <div key={field.id} className="mb-4">
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <select
+              value={answers[field.id] || ""}
+              onChange={(e) => handleFieldChange(field.id, e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              style={{
+                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
+                backgroundColor: safeTheme.colors.card,
+                color: safeTheme.colors.text,
+              }}
+            >
+              <option value="">Select an option</option>
+              {field.options?.map((option) => (
+                <option key={option.id} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
         );
@@ -204,7 +231,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "checkbox":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -225,7 +252,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
                     }}
                     className="w-4 h-4 text-blue-600 rounded"
                   />
-                  <span style={{ color: event.theme_config.colors.text }}>{option.label}</span>
+                  <span style={{ color: safeTheme.colors.text }}>{option.label}</span>
                 </label>
               ))}
             </div>
@@ -238,7 +265,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "attendance":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -248,14 +275,14 @@ export default function RSVPForm({ event }: RSVPFormProps) {
                   key={option.id}
                   type="button"
                   onClick={() => handleFieldChange(field.id, option.value)}
-                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                  className={`px-6 py-3 rounded-lg border-2 transition-all ${
                     answers[field.id] === option.value
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-300 hover:border-gray-400"
                   }`}
                   style={{
-                    backgroundColor: answers[field.id] === option.value ? event.theme_config.colors.primary : event.theme_config.colors.card,
-                    color: answers[field.id] === option.value ? event.theme_config.colors.buttonText : event.theme_config.colors.text,
+                    backgroundColor: answers[field.id] === option.value ? safeTheme.colors.primary : safeTheme.colors.card,
+                    color: answers[field.id] === option.value ? safeTheme.colors.buttonText : safeTheme.colors.text,
                   }}
                 >
                   {option.label}
@@ -269,7 +296,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "date":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -279,9 +306,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? event.theme_config.colors.button : "#e5e7eb",
-                backgroundColor: event.theme_config.colors.card,
-                color: event.theme_config.colors.text,
+                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
+                backgroundColor: safeTheme.colors.card,
+                color: safeTheme.colors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -291,7 +318,7 @@ export default function RSVPForm({ event }: RSVPFormProps) {
       case "time":
         return (
           <div key={field.id} className="mb-4">
-            <label className="block text-sm font-medium mb-2" style={{ color: event.theme_config.colors.text }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: safeTheme.colors.text }}>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </label>
@@ -301,9 +328,9 @@ export default function RSVPForm({ event }: RSVPFormProps) {
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
               className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               style={{
-                borderColor: error ? event.theme_config.colors.button : "#e5e7eb",
-                backgroundColor: event.theme_config.colors.card,
-                color: event.theme_config.colors.text,
+                borderColor: error ? safeTheme.colors.button : "#e5e7eb",
+                backgroundColor: safeTheme.colors.card,
+                color: safeTheme.colors.text,
               }}
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
@@ -316,8 +343,8 @@ export default function RSVPForm({ event }: RSVPFormProps) {
             <h3
               className="text-2xl font-bold"
               style={{
-                color: event.theme_config.colors.primary,
-                fontFamily: event.theme_config.typography.headingFont,
+                color: safeTheme.colors.primary,
+                fontFamily: safeTheme.typography.headingFont,
               }}
             >
               {field.label}
@@ -331,8 +358,8 @@ export default function RSVPForm({ event }: RSVPFormProps) {
             <p
               className="text-gray-600"
               style={{
-                color: event.theme_config.colors.muted,
-                fontFamily: event.theme_config.typography.bodyFont,
+                color: safeTheme.colors.muted,
+                fontFamily: safeTheme.typography.bodyFont,
               }}
             >
               {field.content}
@@ -344,25 +371,22 @@ export default function RSVPForm({ event }: RSVPFormProps) {
         return <hr key={field.id} className="my-6 border-gray-200" />;
 
       default:
-        return null;
+        console.warn("Unknown field type:", field.type);
+        return (
+          <div key={field.id} className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-sm text-yellow-800">Field type "{field.type}" is not supported yet</p>
+          </div>
+        );
     }
   };
 
   if (event.status === "closed") {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: event.theme_config.colors.background }}>
-        <div
-          className="max-w-md w-full p-8 rounded-xl text-center"
-          style={{
-            backgroundColor: event.theme_config.colors.card,
-            fontFamily: event.theme_config.typography.bodyFont,
-          }}
-        >
-          <XCircle className="w-16 h-16 mx-auto mb-4" style={{ color: event.theme_config.colors.button }} />
-          <h2 className="text-2xl font-bold mb-4" style={{ color: event.theme_config.colors.text }}>
-            RSVPs Closed
-          </h2>
-          <p style={{ color: event.theme_config.colors.muted }}>{event.settings.closedMessage}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
+          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Event Closed</h1>
+          <p className="text-gray-600">This event is no longer accepting RSVPs.</p>
         </div>
       </div>
     );
@@ -370,58 +394,32 @@ export default function RSVPForm({ event }: RSVPFormProps) {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: event.theme_config.colors.background }}>
-        <div
-          className="max-w-md w-full p-8 rounded-xl text-center"
-          style={{
-            backgroundColor: event.theme_config.colors.card,
-            fontFamily: event.theme_config.typography.bodyFont,
-          }}
-        >
-          <CheckCircle className="w-16 h-16 mx-auto mb-4" style={{ color: event.theme_config.colors.button }} />
-          <h2 className="text-2xl font-bold mb-4" style={{ color: event.theme_config.colors.text }}>
-            {event.settings.confirmationTitle}
-          </h2>
-          <p className="mb-6" style={{ color: event.theme_config.colors.muted }}>
-            {event.settings.confirmationMessage}
-          </p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h1>
+          <p className="text-gray-600">Your RSVP has been submitted successfully.</p>
         </div>
       </div>
     );
   }
 
-  if (event.settings.requireInvitationCode && !codeVerified) {
+  if (event.settings.invitationCode && !codeVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: event.theme_config.colors.background }}>
-        <div
-          className="max-w-md w-full p-8 rounded-xl"
-          style={{
-            backgroundColor: event.theme_config.colors.card,
-            fontFamily: event.theme_config.typography.bodyFont,
-          }}
-        >
-          <h2 className="text-2xl font-bold mb-4 text-center" style={{ color: event.theme_config.colors.text }}>
-            Enter Invitation Code
-          </h2>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Enter Invitation Code</h1>
           <form onSubmit={handleCodeSubmit}>
             <input
               type="text"
               value={invitationCode}
               onChange={(e) => setInvitationCode(e.target.value)}
               placeholder="Enter your invitation code"
-              className="w-full px-4 py-3 border rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              style={{
-                backgroundColor: event.theme_config.colors.card,
-                color: event.theme_config.colors.text,
-              }}
+              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none mb-4"
             />
             <button
               type="submit"
-              className="w-full py-3 rounded-lg font-medium text-white"
-              style={{
-                backgroundColor: event.theme_config.colors.button,
-                borderRadius: `${event.theme_config.buttonStyle.radius}px`,
-              }}
+              className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Verify Code
             </button>
@@ -432,139 +430,96 @@ export default function RSVPForm({ event }: RSVPFormProps) {
   }
 
   return (
-    <div
-      className="min-h-screen py-12 px-4"
-      style={{
-        backgroundColor:
-          event.theme_config.background.type === "gradient"
-            ? `linear-gradient(135deg, ${event.theme_config.background.value} 0%, ${event.theme_config.background.secondary || event.theme_config.background.value} 100%)`
-            : event.theme_config.background.value,
-        fontFamily: event.theme_config.typography.bodyFont,
-      }}
-    >
-      <div className="max-w-2xl mx-auto">
-        <div
-          className="rounded-xl shadow-lg p-8 mb-8"
-          style={{
-            backgroundColor: event.theme_config.colors.card,
-            borderRadius: `${event.theme_config.cardStyle.radius}px`,
-          }}
-        >
-          <h1
-            className="text-4xl font-bold mb-4"
-            style={{
-              color: event.theme_config.colors.primary,
-              fontFamily: event.theme_config.typography.headingFont,
-              fontWeight: event.theme_config.typography.headingWeight,
-            }}
-          >
+    <div className="min-h-screen" style={{ backgroundColor: safeTheme.colors.background }}>
+      <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className="bg-white rounded-lg shadow-lg p-8" style={{ backgroundColor: safeTheme.colors.card }}>
+          {event.cover_image_url && (
+            <img
+              src={event.cover_image_url}
+              alt={event.name}
+              className="w-full h-64 object-cover rounded-lg mb-6"
+            />
+          )}
+
+          <h1 className="text-3xl font-bold mb-2" style={{ color: safeTheme.colors.primary, fontFamily: safeTheme.typography.headingFont }}>
             {event.name}
           </h1>
 
           {event.description && (
-            <p className="mb-6 text-lg" style={{ color: event.theme_config.colors.muted }}>
+            <p className="text-gray-600 mb-6" style={{ color: safeTheme.colors.muted, fontFamily: safeTheme.typography.bodyFont }}>
               {event.description}
             </p>
           )}
 
-          <div className="space-y-3 mb-6">
+          <div className="space-y-3 mb-8 text-sm" style={{ color: safeTheme.colors.text }}>
             {event.event_date && (
-              <div className="flex items-center gap-2" style={{ color: event.theme_config.colors.text }}>
-                <Calendar className="w-5 h-5" style={{ color: event.theme_config.colors.primary }} />
-                <span>{new Date(event.event_date).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</span>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>{new Date(event.event_date).toLocaleDateString()}</span>
               </div>
             )}
-
             {event.start_time && (
-              <div className="flex items-center gap-2" style={{ color: event.theme_config.colors.text }}>
-                <Clock className="w-5 h-5" style={{ color: event.theme_config.colors.primary }} />
-                <span>
-                  {event.start_time}
-                  {event.end_time && ` - ${event.end_time}`}
-                </span>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{event.start_time}</span>
               </div>
             )}
-
             {event.location && (
-              <div className="flex items-center gap-2" style={{ color: event.theme_config.colors.text }}>
-                <MapPin className="w-5 h-5" style={{ color: event.theme_config.colors.primary }} />
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
                 <span>{event.location}</span>
               </div>
             )}
-
-            {event.address && (
-              <div className="flex items-center gap-2" style={{ color: event.theme_config.colors.muted }}>
-                <span className="ml-7">{event.address}</span>
+            {event.contact_email && (
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                <a href={`mailto:${event.contact_email}`} className="text-blue-600 hover:underline">
+                  {event.contact_email}
+                </a>
               </div>
             )}
-
-            {event.host_name && (
-              <div className="flex items-center gap-2" style={{ color: event.theme_config.colors.text }}>
-                <span className="ml-7">Hosted by {event.host_name}</span>
+            {event.contact_phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                <a href={`tel:${event.contact_phone}`} className="text-blue-600 hover:underline">
+                  {event.contact_phone}
+                </a>
               </div>
             )}
           </div>
 
-          {event.maps_url && (
-            <a
-              href={event.maps_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-medium mb-6"
-              style={{ color: event.theme_config.colors.primary }}
-            >
-              <MapPin className="w-4 h-4" />
-              View on Google Maps
-            </a>
-          )}
-        </div>
-
-        <div
-          className="rounded-xl shadow-lg p-8"
-          style={{
-            backgroundColor: event.theme_config.colors.card,
-            borderRadius: `${event.theme_config.cardStyle.radius}px`,
-          }}
-        >
-          <h2
-            className="text-2xl font-bold mb-6"
-            style={{
-              color: event.theme_config.colors.primary,
-              fontFamily: event.theme_config.typography.headingFont,
-            }}
-          >
-            RSVP
-          </h2>
-
           <form onSubmit={handleSubmit}>
-            <div className="flex flex-wrap">
-              {fields.map((field) => renderField(field))}
-            </div>
+            {schema.sections.map((section) => (
+              <div key={section.id} className="mb-8">
+                {section.title && (
+                  <h2 className="text-xl font-semibold mb-4" style={{ color: safeTheme.colors.primary }}>
+                    {section.title}
+                  </h2>
+                )}
+                {section.description && (
+                  <p className="text-gray-600 mb-4" style={{ color: safeTheme.colors.muted }}>
+                    {section.description}
+                  </p>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {section.fields.map((field) => renderField(field))}
+                </div>
+              </div>
+            ))}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-lg font-medium text-white text-lg mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
               style={{
-                backgroundColor: event.theme_config.colors.button,
-                borderRadius: `${event.theme_config.buttonStyle.radius}px`,
+                backgroundColor: safeTheme.colors.button,
+                color: safeTheme.colors.buttonText,
               }}
             >
               {loading ? "Submitting..." : "Submit RSVP"}
             </button>
           </form>
         </div>
-
-        {event.contact_email && (
-          <div className="mt-8 text-center">
-            <p className="text-sm" style={{ color: event.theme_config.colors.muted }}>
-              Questions? Contact{" "}
-              <a href={`mailto:${event.contact_email}`} className="font-medium" style={{ color: event.theme_config.colors.primary }}>
-                {event.contact_email}
-              </a>
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
